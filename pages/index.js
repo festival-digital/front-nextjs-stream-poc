@@ -21,7 +21,7 @@ const Video = (props) => {
 
 export default function Home() {
   const [peers, setPeers] = useState([]);
-  console.log('peers:', peers)
+  console.log('pee  rs:', peers)
   const [id, setId] = useState('ID');
   const [myStream, setMyStream] = useState(null);
   const socketRef = useRef();
