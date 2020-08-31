@@ -12,7 +12,7 @@ const Video = (props) => {
         console.log('VIDEO stream:', stream);
         ref.current.srcObject = stream;
       })
-  }, []);
+  }, [props.peer]);
 
   return (
       <VideoTag muted controls autoPlay ref={ref} />

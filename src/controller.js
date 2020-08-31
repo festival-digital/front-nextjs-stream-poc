@@ -51,24 +51,26 @@ const updateRoom = ({ users, peersRef, setPeers, socket, stream }) => {
 
 const userJoined = ({ peers, payload, stream, peersRef, setPeers, socket }) => {
   console.log('=> userJoined ');
+  console.log('peers:', peers);
   const peer = addPeer(payload.signal, payload.callerID, stream, socket);
   peersRef.current.push({
     peerID: payload.callerID,
     peer,
   });
-
+  
   setPeers([...peers, peer]);
 };
 
 const answerBack = ({ payload, peersRef }) => {
   console.log('=> answerBack ');
   const item = peersRef.current.find(p => p.peerID === payload.id);
+  console.log('item:', item);
   item.peer.signal(payload.signal);
 };
 
 export const joinStream = async ({ setId, peers, setMyStream, peersRef, setPeers }) => {
   console.log('=> joinStream ');
-  const socket = await socketIOClient('https://api-poc-feira.resystem.org');
+  const socket = await socketIOClient('https://api-poc-feira.resystem.org', {transports: ['websocket']});
   
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
