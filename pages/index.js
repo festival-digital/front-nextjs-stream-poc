@@ -1,60 +1,67 @@
 import Head from 'next/head'
-import { useState, useEffect, useRef } from 'react';
-import { VideoContainer, Video as VideoTag } from '../src/style';
-import { joinStream } from '../src/controller';
+import React, { useContext, useEffect } from 'react';
+import dynamic from "next/dynamic";
+import { useRouter } from 'next/router'
+import { Wrapper, Button } from '../src/style';
 import styled from 'styled-components';
+import Store from '../store/Store';
 
-const Video = (props) => {
-  const ref = useRef();
+const ClientRoom = dynamic(() => import('../src/room/room'), { ssr: false });
 
-  useEffect(() => {
-      props.peer.on("stream", stream => {
-        console.log('VIDEO stream:', stream);
-        ref.current.srcObject = stream;
-      })
-  }, [props.peer]);
+export const Main = styled.main`
+  background-color: #373737;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-  return (
-      <VideoTag muted controls autoPlay ref={ref} />
-  );
-}
+const goToRooms = ({ router, store, type }) => {
+  store.dispatch({
+    type: 'SET_AUTH',
+    data: {
+      type
+    },
+  });
+  router.push('/rooms');
+};
+const goToPeerRooms = () => {
+
+};
+
 
 export default function Home() {
-  const [peers, setPeers] = useState([]);
-  console.log('pee  rs:', peers)
-  const [id, setId] = useState('ID');
-  const [myStream, setMyStream] = useState(null);
-  const socketRef = useRef();
-  const peersRef = useRef([]);
-  
-  useEffect(() => joinStream({ setId, peers, setMyStream, peersRef, setPeers, socketRef }), []);
-  
-  useEffect(() => {
-    if (myStream) {
-      const video = document.getElementById(myStream.id);
-      video.srcObject = myStream;
-    }
-  }, [myStream]);
-
+  const router = useRouter();
+  const store = useContext(Store);
   return (
     <div className="container">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
+        <link type="text/css" rel="stylesheet" href="https://source.zoom.us/1.8.1/css/bootstrap.css" />
+        <link type="text/css" rel="stylesheet" href="https://source.zoom.us/1.8.1/css/react-select.css" />
+        <script SameSite="Secure" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/react.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/react-dom.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/redux.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/redux-thunk.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/jquery.min.js"></script>
+        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/lodash.min.js"></script>
+
+        <script async src="https://source.zoom.us/zoom-meeting-1.8.1.min.js"></script>
       </Head>
-      <main>
-        <h1>{id}</h1>
-        <VideoContainer id="video-container">
-          {myStream ? (
-            <VideoTag autoPlay muted controls id={myStream.id} srcObject={myStream} />
-          ) : null}
-          {peers.map((peer, index) => {
-              return (
-                  <Video key={index} peer={peer} />
-              );
-          })}
-        </VideoContainer>
-      </main>
+      <Main>
+        <ClientRoom />
+        {/* <Wrapper>
+          <Button onClick={() => goToRooms({ router, store, type: 'peer' })}>
+            Peer to Peer
+          </Button>
+          <Button onClick={() => goToRooms({ router, store, type: 'voice' })}>
+            Voice
+          </Button>
+        </Wrapper> */}
+      </Main>
       <style jsx global>{`
         html, body {
           padding: 0;
@@ -62,6 +69,9 @@ export default function Home() {
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
             Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
             sans-serif;
+            background-color: #373737;
+            padding: none;
+            margin: 0;
         }
 
         * {
