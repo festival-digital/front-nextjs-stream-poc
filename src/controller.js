@@ -3,16 +3,16 @@ import socketIOClient from "socket.io-client";
 import { Video } from './style';
 
 function addPeer(incomingSignal, callerID, stream, socket) {
-  console.log('incomingSignal:', incomingSignal)
   console.log('=> addPeer:')
   const peer = new Peer({
+      renegotiate: true,
       initiator: false,
       trickle: false,
       stream,
   })
 
   peer.on("signal", signal => {
-      socket.emit("room/signal-back", { signal, callerID })
+    socket.emit("room/signal-back", { signal, callerID })
   })
 
   peer.signal(incomingSignal);
@@ -23,6 +23,7 @@ function addPeer(incomingSignal, callerID, stream, socket) {
 const createPeer = (userToSignal, callerID, stream, socket) => {
   console.log('=> createPeer:')
   const peer = new Peer({
+    renegotiate: true,
     initiator: true,
     trickle: false,
     stream,
@@ -37,7 +38,6 @@ const createPeer = (userToSignal, callerID, stream, socket) => {
 const updateRoom = ({ users, peersRef, setPeers, socket, stream }) => {
   console.log('=> updateRoom');
   const peers = [];
-  console.log('users:', users)
   users.forEach(user => {
       const peer = createPeer(user.socket_id, socket.id, stream, socket);
       peersRef.current.push({
@@ -50,8 +50,13 @@ const updateRoom = ({ users, peersRef, setPeers, socket, stream }) => {
 }
 
 const userJoined = ({ peers, payload, stream, peersRef, setPeers, socket }) => {
-  console.log('=> userJoined ');
-  console.log('peers:', peers);
+  console.log('userJoined -> peers', peers);
+  console.log('userJoined -> payload', payload);
+  console.log('userJoined -> peersRef.current', peersRef.current);
+  const exist = peersRef.current.find(({ peerID }) => peerID === payload.callerID);
+  if (exist) {
+    return;
+  }
   const peer = addPeer(payload.signal, payload.callerID, stream, socket);
   peersRef.current.push({
     peerID: payload.callerID,
@@ -64,13 +69,12 @@ const userJoined = ({ peers, payload, stream, peersRef, setPeers, socket }) => {
 const answerBack = ({ payload, peersRef }) => {
   console.log('=> answerBack ');
   const item = peersRef.current.find(p => p.peerID === payload.id);
-  console.log('item:', item);
-  item.peer.signal(payload.signal);
+  if (item) item.peer.signal(payload.signal);
 };
 
 export const joinStream = async ({ setId, peers, setMyStream, peersRef, setPeers }) => {
   console.log('=> joinStream ');
-  const socket = await socketIOClient('https://api-poc-feira.resystem.org', {transports: ['websocket']});
+  const socket = await socketIOClient('http://localhost:8080', {transports: ['websocket']});
   
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
