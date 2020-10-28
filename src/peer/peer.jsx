@@ -17,8 +17,18 @@ const Video = (props) => {
   }, [props.peer]);
 
   return (
-      <VideoTag muted controls autoPlay ref={ref} />
+    <div>
+      <VideoTag controls={false} autoPlay ref={ref} />
+      <label></label>
+    </div>
   );
+}
+
+const getName = ({ store, peer }) => {
+  const person = store.state.room.participants.find(({ socket_id }) => peer.peerID === socket_id);
+  console.log('getName -> person', person);
+  if (!person) return null;
+  return person.name || 'undefined';
 }
 
 const getMultimedia = async ({ setStream }) => {
@@ -72,7 +82,7 @@ const Peer = ({
                 peer={p}
                 // src={`https://robohash.org/${p.name.replace(/ /g, '')}`}
               />
-              <Name>{p.name}</Name>
+              <Name>{getName({ store, peer: p })}</Name>
             </Person>
           ))
         ) : null}

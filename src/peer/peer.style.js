@@ -15,6 +15,11 @@ export const VideoContainer = styled.div`
 export const VideoTag = styled.video`
   height: 200px;
   width: 350px;
+  /* visibility: hidden; */
+`;
+export const CanvasTag = styled.canvas`
+  height: 200px;
+  width: 350px;
 `;
 
 export const Container = styled.section`
@@ -48,14 +53,14 @@ export const Image = styled.img`
 `;
 
 export const Person = styled.div`
-  width: 200px;
-  height: 200px;
+  width: 350px;
+  height: 250px;
   display: inline-block;
   position: relative;
   background-color: 	#eeeeee;
   text-align: center;
   vertical-align: middle;
-  padding: 0 0 30px;
+  padding: 10px 0 30px;
   border-radius: 15px;
   margin: 10px;
 `;

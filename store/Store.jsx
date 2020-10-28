@@ -7,13 +7,7 @@ const Store = React.createContext();
 export const initialState = {
   auth: {},
   socket: null,
-  rooms: [
-    { name: 'sala 01', length: 2 },
-    { name: 'sala 02', length: 2 },
-    { name: 'sala 03', length: 1 },
-    { name: 'sala 04', length: 1 },
-    { name: 'sala 05', length: 2 },
-  ],
+  rooms: [],
   room: null,
 };
 
@@ -24,6 +18,8 @@ export const reducer = (state, action) => {
       return { ...state, auth: action.data };
     case 'SET_ROOM':
       return { ...state, room: action.data };
+    case 'SET_ALL_ROOMS':
+      return { ...state, rooms: action.data };
     case 'SET_SOCKET':
       return { ...state, socket: action.socket };
     default:

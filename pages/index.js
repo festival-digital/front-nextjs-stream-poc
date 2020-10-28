@@ -6,7 +6,6 @@ import { Wrapper, Button } from '../src/style';
 import styled from 'styled-components';
 import Store from '../store/Store';
 
-const ClientRoom = dynamic(() => import('../src/room/room'), { ssr: false });
 
 export const Main = styled.main`
   background-color: #373737;
@@ -39,28 +38,19 @@ export default function Home() {
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
-        <link type="text/css" rel="stylesheet" href="https://source.zoom.us/1.8.1/css/bootstrap.css" />
-        <link type="text/css" rel="stylesheet" href="https://source.zoom.us/1.8.1/css/react-select.css" />
-        <script SameSite="Secure" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/react.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/react-dom.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/redux.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/redux-thunk.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/jquery.min.js"></script>
-        <script SameSite="Secure" src="https://source.zoom.us/1.8.1/lib/vendor/lodash.min.js"></script>
-
-        <script async src="https://source.zoom.us/zoom-meeting-1.8.1.min.js"></script>
       </Head>
       <Main>
-        <ClientRoom />
-        {/* <Wrapper>
+        <Wrapper>
           <Button onClick={() => goToRooms({ router, store, type: 'peer' })}>
             Peer to Peer
           </Button>
-          <Button onClick={() => goToRooms({ router, store, type: 'voice' })}>
-            Voice
+          <Button onClick={() => router.push('/voice')}>
+            Zoom
           </Button>
-        </Wrapper> */}
+          <Button onClick={() => window.open('https://us02web.zoom.us/j/2910003426?pwd=T3FycXhOZ0hQK3BnVTk3SDJHeGYvUT09', '_blank').focus()}>
+            Zoom link
+          </Button>
+        </Wrapper>
       </Main>
       <style jsx global>{`
         html, body {

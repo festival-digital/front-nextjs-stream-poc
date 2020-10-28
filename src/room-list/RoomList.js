@@ -7,6 +7,7 @@ import {
   Container, Content, RoomsList,
   RoomCard, Label, Header,
 } from './roomList.style';
+import { sortByParticipants } from '../utils/room.util';
 
 const roomEntry = ({ setError, name, room, router, state, dispatch }) => {
   console.log('roomEntry -> state', state);
@@ -33,8 +34,34 @@ const roomEntry = ({ setError, name, room, router, state, dispatch }) => {
   router.push(`/${state.auth.type}`);
 };
 
+const getRooms = async (dispatch) => {
+  const rooms = await fetch('https://stream-back.oasi.vc/get-rooms', {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  });
+  console.log('getRooms -> rooms', rooms);
+  const response = await rooms.json();
+  const sortedRooms = sortByParticipants({ roomList: response.rooms });
+  console.log('getRooms -> response', sortedRooms);
+  dispatch({
+    type: 'SET_ALL_ROOMS',
+    data: sortedRooms,
+  });
+
+}
+
 const connectSocket = async ({ dispatch }) => {
-  const socket = await socketIOClient('http://192.168.0.15:8080', { transports: ['websocket'] });
+  const socket = await socketIOClient('https://stream-back.oasi.vc', { transports: ['websocket'] });
+
+  socket.on('updated_rooms', ((rooms) => {
+  console.log('connectSocket -> rooms', rooms);
+    dispatch({
+      type: 'SET_ALL_ROOMS',
+      data: rooms,
+    });
+  }))
   dispatch({
     type: 'SET_SOCKET',
     socket,
@@ -49,6 +76,7 @@ const RoomList = () => {
   const [error, setError] = useState('');
   useEffect(() => {
     if (!state.auth.type) router.push('/');
+    getRooms(dispatch)
     connectSocket({ dispatch });
   }, []);
   return (
@@ -68,12 +96,12 @@ const RoomList = () => {
         </Header>
         <RoomsList>
           {state.rooms.map((room) => (
-            <RoomCard onClick={() => setRoom(room.name)}>
+            <RoomCard onClick={() => setRoom(room.room_id)}>
               <Content>
-                <Label>{room.name}</Label>
+                <Label>{room.room_id}</Label>
               </Content>
               <Content>
-                <Label>{room.length}</Label>
+                <Label>{room.participants.length}</Label>
               </Content>
             </RoomCard>
           ))}

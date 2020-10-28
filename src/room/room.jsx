@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import gpu from 'gpu.js';
+// import gpu from 'gpu.js';
 import styled from 'styled-components';
 import Store from '../../store/Store';
 import { initStream } from './room.controller';
@@ -47,13 +47,9 @@ const Button = styled.button`
   padding: 4px 7px;
   margin-top: 20px;
 `;
-const FaceWrapper = styled.div`
-  position: relative;
-  box-shadow: 2px 16px 28px -9px rgba(0,0,0,0.75);
-  height: 250px;
-  margin: 15px;
-  width: 400px;
-  display: inline-block;
+const ZoomContainer = styled.div`
+  max-height: 80vh;
+  max-width: 50vw;
 `;
 
 const MyFaceWrapper = styled.div`
@@ -115,26 +111,44 @@ const myIntermal = ({ room, stream, socket }) => {
 }
 const runZoom = () => {
   console.log('sadasd:: ', global)
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && typeof ZoomMtg !== "undefined") {
     console.log('runZoom -> window', window);
     console.log('runZoom -> ZoomMtg', ZoomMtg);
+    ZoomMtg.preLoadWasm();
+    ZoomMtg.prepareJssdk();
     // console.log(JSON.stringify(ZoomMtg.checkSystemRequirements()));
     // ZoomMtg.setZoomJSLib('https://source.zoom.us/1.7.2/lib', '/av');
     // ZoomMtg.preLoadWasm();
     // ZoomMtg.prepareJssdk();
     ZoomMtg.init({
-      debug: true,
-      meetingNumber: 8342518293,
-      userName: 'Branca',
-      userEmail: 'isaquebc@gmail.com',
-      passWord: 'I@I39103991i',
-      apiKey: 'VAgYCdRiRHqHVF_y0BZorA',
-      signature: 'VkFnWUNkUmlSSHFIVkZfeTBCWm9yQS42NDU0NDc5MTMwLjE2MDMzODA4MTM3NTkuMC5RTEhwUkhRRjZMOFNqOEZ6NmJySSt2UU9xQVYwc3I0VkxPSHBhZjdzamFZPQ==',
+      // debug: true,
       // participantId: 'UUID',
       leaveUrl: 'http://localhost:3000/leave',
       // debug: true,
       success: (success) => {
+        console.log('runZoom -> success', success);
         console.log('success')
+        ZoomMtg.join({
+          meetingNumber: 2910003426,
+          userName: 'Branca',
+          signature: 'R0Y1emw1U1VTVTJ2WEVweTJXa3VhZy42NDU0NDc5MTMwLjE2MDM3MzEyMzA5NjkuMC5YSVU1UUVseVZnekhYa3g4bEN0andCMlovY0IyNzdCcXpiRFdoTFpiNVFFPQ==',
+          apiKey: 'GF5zl5SUSU2vXEpy2Wkuag',
+          userEmail: 'ass.coletivocultural@gmail.com',
+          passWord: '08adafomlA',
+          success: function (res) {
+            console.log("join meeting success");
+            console.log("get attendeelist");
+            ZoomMtg.getAttendeeslist({});
+            ZoomMtg.getCurrentUser({
+              success: function (res) {
+                console.log("success getCurrentUser", res.result.currentUser);
+              },
+            });
+          },
+          error: function (res) {
+            console.log(res);
+          },
+        });
       },
       error: (error) => {
         console.log('error')
@@ -161,8 +175,9 @@ const Room = ({
     <Container>
       <Header>
         <Label>{'sala: '}</Label>
+        <button onClick={() => setStartZoom(!startZoom)} >salve</button>
       </Header>
-      <div id="zmmtg-root"></div>
+      <ZoomContainer id="zmmtg-root"></ZoomContainer>
       <div id="aria-notify-area"></div>        
       {/* <PeopleContainer>
           {room.participants.filter((p) => (p.socket_id !== socket.id)).map(p => (

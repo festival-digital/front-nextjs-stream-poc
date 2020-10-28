@@ -39,9 +39,18 @@ const createPeer = (userToSignal, stream, socket, store) => {
 
 
 const updateRoom = ({ payload, peersRef, setPeers, store, stream }) => {
+  console.log('updateRoom -> store', store);
   console.log('updateRoom -> updateRoom');
   const peers = [];
   payload.participants.filter((p) => p.socket_id !== store.state.socket.id).forEach(user => {
+    // if (store.state.room) {
+    //   console.log('updateRoom -> store.state.room', store.state.room);
+    //   const has = store.state.room.participants.find((p) => p.socket_id === user.socket_id);
+    //   console.log('updateRoom -> has', has);
+    //   if (has) {
+    //     return;
+    //   }
+    // }
       const peer = createPeer(user.socket_id, stream, store.state.socket, store);
       peersRef.current.push({
           peerID: user.socket_id,
@@ -56,6 +65,8 @@ const updateRoom = ({ payload, peersRef, setPeers, store, stream }) => {
 }
 
 const userJoined = ({ peers, payload, stream, peersRef, setPeers, store }) => {
+  const hasPeer = peersRef.current.find(({ peerID }) => peerID === payload.callerID);
+  if (hasPeer) return;
   const peer = addPeer(payload.signal, payload.callerID, stream, store.socket, store);
   peersRef.current.push({
     peerID: payload.callerID,
@@ -69,9 +80,7 @@ const userJoined = ({ peers, payload, stream, peersRef, setPeers, store }) => {
 };
 
 const answerBack = ({ payload, peersRef }) => {
-  console.log('=> answerBack ');
   const item = peersRef.current.find(p => p.peerID === payload.id);
-  console.log('answerBack -> item', item);
   item.peer.signal(payload.signal);
 };
 
